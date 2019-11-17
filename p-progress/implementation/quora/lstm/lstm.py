@@ -238,11 +238,18 @@ def train_model():
 if __name__ == '__main__':
     model = train_model()
     predicts = model.predict([test_data_1, test_data_2], batch_size=10, verbose=1)
+    f = open("output.txt",'w')
     for i in range(len(test_ids)):
-        qa1 = " ".join(test_texts_1[i].split())
-        qa2 = " ".join(test_texts_2[i].split())
-        print("Question1 = ", qa1)
-        print("Question2 = ", qa2)
-        print("score = ",predicts[i][0])
+        # qa1 = " ".join(test_texts_1[i].split())
+        # qa2 = " ".join(test_texts_2[i].split())
+        # print("Question1 = ", qa1)
+        # print("Question2 = ", qa2)
+        # print("score = ",predicts[i][0])
+        score = predicts[i][0]
+        if float(score) > 0.5:
+            f.write("1"+'\n')
+        else:
+            f.write("0"+'\n')
+    f.close()
 
         # print("t1: %s, t2: %s, score: %s" % (test_texts_1[i], test_texts_2[i], predicts[i]))

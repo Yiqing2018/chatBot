@@ -15,7 +15,7 @@ print("Done with word2vec")
 # test the model
 # the most similar words with "web" should include "website"...
 
-# model_loaded = Word2Vec.load("model/w2v.mod")
-# sim = model_loaded.wv.most_similar(positive=['web'])
-# for s in sim:
-#     print (s[0])
+model_loaded = Word2Vec.load("../model/w2v.mod")
+sim = model_loaded.wv.most_similar(positive=['web'])
+for s in sim:
+    print (s[0])
