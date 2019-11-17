@@ -27,18 +27,14 @@ importlib.reload(sys)
 ########################################
 DATA_DIR = '../quora-question-pairs/'
 EMBEDDING_FILE = '../model/w2v.mod'
-TRAIN_DATA_FILE = DATA_DIR + 'train.csv'
-TEST_DATA_FILE = DATA_DIR + 'test.csv'
+# TRAIN_DATA_FILE = DATA_DIR + 'train.csv'
+# TEST_DATA_FILE = DATA_DIR + 'test.csv'
+TRAIN_DATA_FILE = DATA_DIR + 'sample_train.csv'
+TEST_DATA_FILE = DATA_DIR + 'sample_test.csv'
 MAX_SEQUENCE_LENGTH = 30
 MAX_NB_WORDS = 200000
 EMBEDDING_DIM = 100
 VALIDATION_SPLIT = 0.1
-
-# num_lstm = np.random.randint(175, 275)
-# num_dense = np.random.randint(100, 150)
-# rate_drop_lstm = 0.15 + np.random.rand() * 0.25
-# rate_drop_dense = 0.15 + np.random.rand() * 0.25
-
 num_lstm = 175
 num_dense = 100
 rate_drop_lstm = 0.15
@@ -56,13 +52,6 @@ save_path = "../model/lstm"
 tokenizer_name = "tokenizer.pkl"
 embedding_matrix_path = "../model/lstm/embedding_matrix.npy"
 
-# ########################################
-# ## index word vectors
-# ########################################
-# print('Indexing word vectors')
-#
-# word2vec = KeyedVectors.load_word2vec_format(EMBEDDING_FILE, binary=True)
-# print('Found %s word vectors of word2vec' % len(word2vec.vocab))
 
 ########################################
 # process texts in datasets
@@ -90,9 +79,9 @@ with codecs.open(TRAIN_DATA_FILE, encoding='utf-8') as f:
     reader = csv.reader(f, delimiter=',')
     header = next(reader)
     for values in reader:
-        texts_1.append(text_to_wordlist(values[3]))
-        texts_2.append(text_to_wordlist(values[4]))
-        labels.append(int(values[5]))
+        texts_1.append(text_to_wordlist(values[3])) # question1
+        texts_2.append(text_to_wordlist(values[4])) # question2
+        labels.append(int(values[5])) # if isDuplicates
 print('Found %s texts in train.csv' % len(texts_1))
 
 test_texts_1 = []
@@ -102,9 +91,9 @@ with codecs.open(TEST_DATA_FILE, encoding='utf-8') as f:
     reader = csv.reader(f, delimiter=',')
     header = next(reader)
     for values in reader:
-        test_texts_1.append(text_to_wordlist(values[3]))
-        test_texts_2.append(text_to_wordlist(values[4]))
-        test_ids.append(values[0])
+        test_texts_1.append(text_to_wordlist(values[1])) # question1 in test file
+        test_texts_2.append(text_to_wordlist(values[2])) # question2 in test file
+        test_ids.append(values[0]) # test id
 print('Found %s texts in train.csv' % len(test_texts_1))
 
 # print texts_1
@@ -175,35 +164,15 @@ nb_words = min(MAX_NB_WORDS, len(word_index)) + 1
 
 embedding_matrix = np.zeros((nb_words, EMBEDDING_DIM))
 for word, i in word_index.items():
-    if word in word2vec.wv.vocab:
+    if word in word2vec.wv.vocab: # the best case - all words are in vocab dictionary
         embedding_matrix[i] = word2vec.wv.word_vec(word)
-    else:
-        print (word)
+
+    # else:
+    #     print (word)
 print('Null word embeddings: %d' % np.sum(np.sum(embedding_matrix, axis=1) == 0))
 
 np.save(embedding_matrix_path, embedding_matrix)
 
-
-# #######################################
-# # sample train/validation data
-# #######################################
-# np.random.seed(1234)
-# perm = np.random.permutation(len(data_1))
-# idx_train = perm[:int(len(data_1) * (1 - VALIDATION_SPLIT))]
-# idx_val = perm[int(len(data_1) * (1 - VALIDATION_SPLIT)):]
-#
-# data_1_train = np.vstack((data_1[idx_train], data_2[idx_train]))
-# data_2_train = np.vstack((data_2[idx_train], data_1[idx_train]))
-# labels_train = np.concatenate((labels[idx_train], labels[idx_train]))
-#
-# data_1_val = np.vstack((data_1[idx_val], data_2[idx_val]))
-# data_2_val = np.vstack((data_2[idx_val], data_1[idx_val]))
-# labels_val = np.concatenate((labels[idx_val], labels[idx_val]))
-
-# weight_val = np.ones(len(labels_val))
-# if re_weight:
-#     weight_val *= 0.472001959
-#     weight_val[labels_val == 0] = 1.309028344
 
 
 ########################################
@@ -263,12 +232,17 @@ def train_model():
     bst_score = min(hist.history['loss'])
     bst_acc = max(hist.history['acc'])
     print (bst_acc, bst_score)
+    return model
 
 
 if __name__ == '__main__':
-    train_model()
+    model = train_model()
+    predicts = model.predict([test_data_1, test_data_2], batch_size=10, verbose=1)
+    for i in range(len(test_ids)):
+        qa1 = " ".join(test_texts_1[i].split())
+        qa2 = " ".join(test_texts_2[i].split())
+        print("Question1 = ", qa1)
+        print("Question2 = ", qa2)
+        print("score = ",predicts[i][0])
 
-# predicts = model.predict([test_data_1, test_data_2], batch_size=10, verbose=1)
-
-# for i in range(len(test_ids)):
-#    print "t1: %s, t2: %s, score: %s" % (test_texts_1[i], test_texts_2[i], predicts[i])
+        # print("t1: %s, t2: %s, score: %s" % (test_texts_1[i], test_texts_2[i], predicts[i]))
