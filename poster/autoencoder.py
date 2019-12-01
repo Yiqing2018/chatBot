@@ -17,13 +17,13 @@ class AutoEncoder:
     def encoder(self):
         inputs = Input(shape=(self.trainingData[0].shape))
         # add more layers!
-        encoded = Dense(3, activation='relu')(inputs)
+        encoded = Dense(10, activation='relu')(inputs)
         model = Model(inputs, encoded)
         self.encoder = model
         return model
 
     def decoder(self):
-        inputs = Input(shape=(3,))
+        inputs = Input(shape=(10,))
         decoded = Dense(36)(inputs)
         model = Model(inputs, decoded)
         self.decoder = model
@@ -85,11 +85,7 @@ def preprocess(data, vocabulary):
     for row in data:
         sample = []
         words = cleanQuestion(row[1])
-        count = 0
         for word in words:
-            if count > 100:
-                break
-            count += 1
             if word in vocabulary:
                 sample.append(vocabulary[word])
             else:
@@ -99,9 +95,18 @@ def preprocess(data, vocabulary):
     # make sure the length of input is the same
     return keras.preprocessing.sequence.pad_sequences(
         trainingData, 
-        value=1, # 1 is for unknown
+        value=0, # 0 is for pad
         padding="post",
         maxlen=36)
+
+def generate_initial_vector(words, vocabulary):
+    sample = []
+    for word in words:
+        if word in vocabulary:
+            sample.append(vocabulary[word])
+        else:
+            sample.append(1) # 1 is for unknown
+    return sample
 
 def load_vocabulary():
     client = bigquery.Client()
