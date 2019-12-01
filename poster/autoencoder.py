@@ -10,7 +10,7 @@ from google.cloud import bigquery
 
 trainingPercent = 0.8
 maxlen = 36
-epochs_size = 1
+epochs_size = 3
 compressed_size = 10
 data_size = 1000000 # set limitedDataSet to True
 limitedDataSet = False
