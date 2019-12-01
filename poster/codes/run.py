@@ -9,11 +9,12 @@ from keras.callbacks import TensorBoard
 
 
 trainingPercent = 0.8
+long_dimension = 20
+short_dimension = 5
 
 class AutoEncoder:
 	def __init__(self,trainingData):
 		self.trainingData = trainingData
-		self.preprocess()
 
 	def preprocess(self):
 		# build vocabulary dict
@@ -42,29 +43,30 @@ class AutoEncoder:
 			train, 
 			value=vocab['<PAD>'],
 			padding = "post",
-			maxlen = 25)
-		print(self.train)
+			maxlen = long_dimension)
+		return self.train
 
 	def encoder(self):
 		inputs = Input(shape=(self.train[0].shape))
 		# add more layers!
-		encoded = Dense(3, activation='relu')(inputs)
+		encoded = Dense(short_dimension, activation='relu')(inputs)
 		model = Model(inputs, encoded)
 		self.encoder = model
 		return model
 
 	def decoder(self):
-		inputs = Input(shape=(3,))
-		decoded = Dense(25)(inputs)
+		inputs = Input(shape=(short_dimension,))
+		decoded = Dense(long_dimension)(inputs)
 		model = Model(inputs, decoded)
 		self.decoder = model
 		return model
+
 	def encoder_decoder(self):
 		ec = self.encoder()
 		dc = self.decoder()
-		inputs = Input(shape=self.train[0].shape)
-		ec_out = ec(inputs)
-		dc_out = dc(ec_out)
+		inputs = Input(shape=self.train[0].shape) # long vector
+		ec_out = ec(inputs) # short vector
+		dc_out = dc(ec_out) # long vector trained by model
 		model = Model(inputs, dc_out)
 		self.model = model
 		return model
@@ -85,6 +87,7 @@ class AutoEncoder:
 			self.decoder.save(r'./weights/decoder_weights.h5')
 			self.model.save(r'./weights/ae_weights.h5')
 	def run(self):
+		self.preprocess()
 		self.encoder_decoder()
 		self.fit(batch_size=50, epochs=300)
 		self.save()
@@ -95,15 +98,14 @@ class AutoEncoder:
 def main():
 	# fetch data
 	data = fetchData.getData()
+	# print(data)
 	# split training data and test data
 	idx = int(len(data)*trainingPercent)
 	trainingData = data[:idx]
 	TestData = data[idx:]
+	# train our model
 	autoEncoder = AutoEncoder(trainingData)
 	autoEncoder.run()
-	cleanTrain = autoEncoder.train
-	test.test(cleanTrain)
-
 
 
 if __name__ == '__main__':

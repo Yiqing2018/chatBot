@@ -25,28 +25,15 @@ def cleanText(result):
 
 def getData():
 	client = bigquery.Client()
-	dataset_id = "stackoverflow" # dataset_id used for query shouldn't contain project_id.
+	dataset_id = "stackoverflow"
 	query = """
-	    SELECT id as qid, title, accepted_answer_id
-		FROM `bigquery-public-data.stackoverflow.posts_questions`
-		WHERE accepted_answer_id IS NOT NULL
-		LIMIT 10;
+		SELECT *
+		FROM `optical-metric-260620.stackoverflow.questions`
+		LIMIT 10000;
 	"""
 	result = queryTable(client,dataset_id, query)
 	result = cleanText(result)
 	return result
-	
-
-	# Query from stackoverflow and save the result as answers table.
-	# sql = """
-	#     SELECT
-	# 	  id as aid,
-	# 	  body
-	# 	FROM
-	# 	  `bigquery-public-data.stackoverflow.posts_answers`
-	# 	LIMIT 10;
-	# """
-	# queryTable(dataset_id, sql)
 
 
 
