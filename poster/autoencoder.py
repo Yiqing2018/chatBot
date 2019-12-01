@@ -12,7 +12,8 @@ trainingPercent = 0.8
 maxlen = 36
 epochs_size = 1
 compressed_size = 10
-data_size = 1000000
+data_size = 1000000 # set limitedDataSet to True
+limitedDataSet = False
 class AutoEncoder:
     def __init__(self,trainingData):
         self.trainingData = trainingData
@@ -76,13 +77,21 @@ def queryTable(client, dataset_id, sql):
 def loadQuestionsFromDB():
     client = bigquery.Client()
     dataset_id = "stackoverflow" # dataset_id used for query shouldn't contain project_id.
-    query = """
-    SELECT
-        *
-    FROM
-        `optical-metric-260620.stackoverflow.questions`
-    LIMIT {};
-    """.format(data_size)
+    if limitedDataSet:
+        query = """
+        SELECT
+            *
+        FROM
+            `optical-metric-260620.stackoverflow.questions`
+        LIMIT {};
+        """.format(data_size)
+    else:
+        query = """
+        SELECT
+            *
+        FROM
+            `optical-metric-260620.stackoverflow.questions`;
+        """
     result = queryTable(client,dataset_id, query)
     return result
 
