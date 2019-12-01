@@ -9,7 +9,7 @@ from keras.callbacks import TensorBoard
 from google.cloud import bigquery
 
 trainingPercent = 0.8
-
+maxlen = 36
 class AutoEncoder:
     def __init__(self,trainingData):
         self.trainingData = trainingData
@@ -57,7 +57,7 @@ class AutoEncoder:
 
     def run(self):
         self.encoder_decoder()
-        self.fit(batch_size=50, epochs=1)
+        self.fit(batch_size=50, epochs=100)
         self.save()
 
 def queryTable(client, dataset_id, sql):
@@ -90,14 +90,18 @@ def preprocess(data, vocabulary):
                 sample.append(vocabulary[word])
             else:
                 sample.append(1) # 1 is for unknown
-            trainingData.append(sample)
+        for i in range(maxlen - len(words)): # make sure same length
+            sample.append(0) # padding sign
+        print(sample)
+        trainingData.append(sample)
+    return trainingData
 
     # make sure the length of input is the same
-    return keras.preprocessing.sequence.pad_sequences(
-        trainingData, 
-        value=0, # 0 is for pad
-        padding="post",
-        maxlen=36)
+    # return keras.preprocessing.sequence.pad_sequences(
+    #     trainingData, 
+    #     value=0, # 0 is for pad
+    #     padding="post",
+    #     maxlen=36)
 
 def generate_initial_vector(words, vocabulary):
     sample = []
@@ -124,14 +128,6 @@ def load_vocabulary():
     return vocabulary
 
 def main():
-    # # fetch data
-    # data = fetchData.getData()
-    
-    # autoEncoder = AutoEncoder(trainingData)
-    # autoEncoder.run()
-    # cleanTrain = autoEncoder.train
-    # test.test(cleanTrain)
-
     data = loadQuestionsFromDB()
     print("Data loaded from DB.questions")
 

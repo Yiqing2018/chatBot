@@ -1,6 +1,6 @@
 from keras.models import load_model
 import numpy as np
-import run, fetchData
+import autoencoder
 import math
 
 encoder = load_model(r'./weights/encoder_weights.h5')
@@ -15,15 +15,16 @@ def eval(data):
 		y = encoder.predict(x)
 		z = decoder.predict(y)
 		
-		print('Input: {}'.format(x))
-		print('Encoded: {}'.format(y))
-		print('Decoded: {}'.format(z))
+		# print('Input: {}'.format(x))
+		# print('Encoded: {}'.format(y))
+		# print('Decoded: {}'.format(z))
 
 		diff.append(vectorSimilarity(x[0], z[0]))
 	print("evaluation on test data, similarity = ", sum(diff) / len(diff) )
 
 
-# according to our theory, the similarity of two vectors is measured by the cosφ
+# according to our theory, the similarity of two vectors is measured by 
+# cosφ, more close to 1, more silimar
 def vectorSimilarity(a,b):
 	res = 0
 	aSize = 0
@@ -35,15 +36,20 @@ def vectorSimilarity(a,b):
 	return res/math.sqrt(aSize * bSize)
 
 def main():
-	# fetch data
-	data = fetchData.getData()
-	# extract test data - original
-	idx = int(len(data)*run.trainingPercent)
-	testData = data[idx:]
-	# convert string into long vector
-	cleanData = run.AutoEncoder(testData).preprocess()
-	# evaluate the result
-	eval(cleanData)
+    # load full data
+    data = autoencoder.loadQuestionsFromDB()    
+    # load vocabulary
+    vocabulary = autoencoder.load_vocabulary()
+    print("Vocabulary loaded and get the dictionary")
+    # clean up data
+    cleanedData = autoencoder.preprocess(data, vocabulary)
+    print("Data preprocessed")
+    # extract test data
+    idx = int(len(cleanedData)*autoencoder.trainingPercent)
+    testData = cleanedData[idx:]
+    print("Split testData")
+    # evaluate the result
+    eval(testData)
 
 if __name__ == '__main__':
 	main()
