@@ -10,6 +10,9 @@ from google.cloud import bigquery
 
 trainingPercent = 0.8
 maxlen = 36
+epochs_size = 1
+neural_nodes = 10
+data_size = 100
 class AutoEncoder:
     def __init__(self,trainingData):
         self.trainingData = trainingData
@@ -17,14 +20,14 @@ class AutoEncoder:
     def encoder(self):
         inputs = Input(shape=(self.trainingData[0].shape))
         # add more layers!
-        encoded = Dense(10, activation='relu')(inputs)
+        encoded = Dense(neural_nodes, activation='relu')(inputs)
         model = Model(inputs, encoded)
         self.encoder = model
         return model
 
     def decoder(self):
-        inputs = Input(shape=(10,))
-        decoded = Dense(36)(inputs)
+        inputs = Input(shape=(neural_nodes,))
+        decoded = Dense(maxlen)(inputs)
         model = Model(inputs, decoded)
         self.decoder = model
         return model
@@ -57,7 +60,7 @@ class AutoEncoder:
 
     def run(self):
         self.encoder_decoder()
-        self.fit(batch_size=50, epochs=100)
+        self.fit(batch_size=50, epochs=epochs_size)
         self.save()
 
 def queryTable(client, dataset_id, sql):
@@ -75,8 +78,9 @@ def loadQuestionsFromDB():
     SELECT
         *
     FROM
-        `optical-metric-260620.stackoverflow.questions`;
-    """
+        `optical-metric-260620.stackoverflow.questions`
+    LIMIT {};
+    """.format(data_size)
     result = queryTable(client,dataset_id, query)
     return result
 
@@ -90,18 +94,13 @@ def preprocess(data, vocabulary):
                 sample.append(vocabulary[word])
             else:
                 sample.append(1) # 1 is for unknown
-        for i in range(maxlen - len(words)): # make sure same length
-            sample.append(0) # padding sign
-        print(sample)
         trainingData.append(sample)
-    return trainingData
-
     # make sure the length of input is the same
-    # return keras.preprocessing.sequence.pad_sequences(
-    #     trainingData, 
-    #     value=0, # 0 is for pad
-    #     padding="post",
-    #     maxlen=36)
+    return keras.preprocessing.sequence.pad_sequences(
+        trainingData, 
+        value=0, # 0 is for pad
+        padding="post",
+        maxlen=36)
 
 def generate_initial_vector(words, vocabulary):
     sample = []
