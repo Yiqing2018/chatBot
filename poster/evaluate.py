@@ -30,9 +30,11 @@ def vectorSimilarity(a,b):
 	aSize = 0
 	bSize = 0
 	for i in range(len(a)):
-		res += (a[i] * b[i])
-		aSize += (a[i] * a[i])
-		bSize += (b[i] * b[i])
+		n1 = int(a[i])
+		n2 = int(b[i])
+		res += (n1 * n2)
+		aSize += (n1 * n1)
+		bSize += (n2 * n2)
 	return res/math.sqrt(aSize * bSize)
 
 def main():

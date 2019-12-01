@@ -12,7 +12,7 @@ trainingPercent = 0.8
 maxlen = 36
 epochs_size = 1
 compressed_size = 10
-data_size = 1000
+data_size = 1000000
 class AutoEncoder:
     def __init__(self,trainingData):
         self.trainingData = trainingData
