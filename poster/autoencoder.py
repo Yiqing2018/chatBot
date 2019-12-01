@@ -24,7 +24,7 @@ class AutoEncoder:
 
     def decoder(self):
         inputs = Input(shape=(3,))
-        decoded = Dense(25)(inputs)
+        decoded = Dense(36)(inputs)
         model = Model(inputs, decoded)
         self.decoder = model
         return model
@@ -50,14 +50,14 @@ class AutoEncoder:
     def save(self):
         if not os.path.exists(r'./weights'):
             os.mkdir(r'./weights')
-        else:
-            self.encoder.save(r'./weights/encoder_weights.h5')
-            self.decoder.save(r'./weights/decoder_weights.h5')
-            self.model.save(r'./weights/ae_weights.h5')
+        self.encoder.save(r'./weights/encoder_weights.h5')
+        self.decoder.save(r'./weights/decoder_weights.h5')
+        self.model.save(r'./weights/ae_weights.h5')
+            
 
     def run(self):
         self.encoder_decoder()
-        self.fit(batch_size=50, epochs=300)
+        self.fit(batch_size=50, epochs=1)
         self.save()
 
 def queryTable(client, dataset_id, sql):
@@ -82,14 +82,14 @@ def loadQuestionsFromDB():
 
 def preprocess(data, vocabulary):
     trainingData = []
-    count = 0
     for row in data:
-        if count > 10:
-            break
-        count += 1
         sample = []
         words = cleanQuestion(row[1])
+        count = 0
         for word in words:
+            if count > 100:
+                break
+            count += 1
             if word in vocabulary:
                 sample.append(vocabulary[word])
             else:
@@ -143,6 +143,7 @@ def main():
 
     # train model
     autoEncoder = AutoEncoder(trainingData)
+    autoEncoder.run()
     
 
 if __name__ == '__main__':
