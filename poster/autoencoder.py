@@ -11,24 +11,26 @@ from google.cloud import bigquery
 trainingPercent = 0.8
 maxlen = 36
 epochs_size = 1
-neural_nodes = 10
-data_size = 100
+compressed_size = 10
+data_size = 1000
 class AutoEncoder:
     def __init__(self,trainingData):
         self.trainingData = trainingData
 
     def encoder(self):
         inputs = Input(shape=(self.trainingData[0].shape))
-        # add more layers!
-        encoded = Dense(neural_nodes, activation='relu')(inputs)
-        model = Model(inputs, encoded)
+        hidden_1 = Dense(20, activation='sigmoid')(inputs)
+        outputs = Dense(compressed_size, activation='relu')(hidden_1)
+        model = Model(inputs, outputs)
+
         self.encoder = model
         return model
 
     def decoder(self):
-        inputs = Input(shape=(neural_nodes,))
-        decoded = Dense(maxlen)(inputs)
-        model = Model(inputs, decoded)
+        inputs = Input(shape=(compressed_size,))
+        hidden_1 = Dense(20, activation='relu')(inputs)
+        outputs = Dense(maxlen, activation='sigmoid')(hidden_1)
+        model = Model(inputs,outputs)
         self.decoder = model
         return model
 
