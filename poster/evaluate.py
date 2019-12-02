@@ -10,7 +10,6 @@ encoder_decoder = load_model(r'./weights/ae_weights.h5')
 def eval(data):
 	diff = list()
 	for i in range(len(data)):
-	# for i in range(1):
 		x = np.array([data[i]])
 		y = encoder.predict(x)
 		z = decoder.predict(y)
@@ -39,12 +38,12 @@ def vectorSimilarity(a,b):
 
 def main():
     # load full data
-    data = autoencoder.loadQuestionsFromDB()    
+    data = autoencoder.loadQuestionsFromDB(-1)    
     # load vocabulary
     vocabulary = autoencoder.load_vocabulary()
     print("Vocabulary loaded and get the dictionary")
     # clean up data
-    cleanedData = autoencoder.preprocess(data, vocabulary)
+    cleanedData, _ = autoencoder.preprocess(data, vocabulary)
     print("Data preprocessed")
     # extract test data
     idx = int(len(cleanedData)*autoencoder.trainingPercent)

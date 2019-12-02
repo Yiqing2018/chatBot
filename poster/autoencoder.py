@@ -12,8 +12,7 @@ trainingPercent = 0.8
 maxlen = 36
 epochs_size = 3
 compressed_size = 10
-data_size = 1000000 # set limitedDataSet to True
-limitedDataSet = False
+
 class AutoEncoder:
     def __init__(self,trainingData):
         self.trainingData = trainingData
@@ -74,17 +73,17 @@ def queryTable(client, dataset_id, sql):
         job_config=job_config)
     return query_job.result()  # Waits for the query to finish
 
-def loadQuestionsFromDB():
+def loadQuestionsFromDB(limitedSize):
     client = bigquery.Client()
     dataset_id = "stackoverflow" # dataset_id used for query shouldn't contain project_id.
-    if limitedDataSet:
+    if limitedSize != -1:
         query = """
         SELECT
             *
         FROM
             `optical-metric-260620.stackoverflow.questions`
         LIMIT {};
-        """.format(data_size)
+        """.format(limitedSize)
     else:
         query = """
         SELECT
@@ -97,6 +96,8 @@ def loadQuestionsFromDB():
 
 def preprocess(data, vocabulary):
     trainingData = []
+    count = 0
+    qids = []
     for row in data:
         sample = []
         words = cleanQuestion(row[1])
@@ -106,12 +107,13 @@ def preprocess(data, vocabulary):
             else:
                 sample.append(1) # 1 is for unknown
         trainingData.append(sample)
+        qids.append(row[0])
     # make sure the length of input is the same
     return keras.preprocessing.sequence.pad_sequences(
         trainingData, 
         value=0, # 0 is for pad
         padding="post",
-        maxlen=36)
+        maxlen=36), qids
 
 def generate_initial_vector(words, vocabulary):
     sample = []
@@ -138,13 +140,13 @@ def load_vocabulary():
     return vocabulary
 
 def main():
-    data = loadQuestionsFromDB()
+    data = loadQuestionsFromDB(-1)
     print("Data loaded from DB.questions")
 
     vocabulary = load_vocabulary()
     print("Vocabulary loaded and get the dictionary")
 
-    cleanedData = preprocess(data, vocabulary)
+    cleanedData, _ = preprocess(data, vocabulary)
     print("Data preprocessed")
 
     # split training data and test data
