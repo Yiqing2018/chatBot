@@ -40,7 +40,7 @@ def main():
     # load full data
     data = autoencoder.loadQuestionsFromDB(-1)    
     # load vocabulary
-    vocabulary = autoencoder.load_vocabulary()
+    vocabulary = autoencoder.load_vocabulary(-1)
     print("Vocabulary loaded and get the dictionary")
     # clean up data
     cleanedData, _ = autoencoder.preprocess(data, vocabulary)

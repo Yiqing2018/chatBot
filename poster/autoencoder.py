@@ -124,15 +124,24 @@ def generate_initial_vector(words, vocabulary):
             sample.append(1) # 1 is for unknown
     return sample
 
-def load_vocabulary():
+def load_vocabulary(limitedSize):
     client = bigquery.Client()
     dataset_id = "stackoverflow"
-    query = """
-        SELECT 
-            *
-        FROM 
-            `optical-metric-260620.stackoverflow.vocabulary`;
-    """
+    if limitedSize != -1:
+        query = """
+            SELECT 
+                *
+            FROM 
+                `optical-metric-260620.stackoverflow.vocabulary`
+            LIMIT {};
+        """.format(limitedSize)
+    else:
+        query = """
+            SELECT 
+                *
+            FROM 
+                `optical-metric-260620.stackoverflow.vocabulary`;
+        """
     result = queryTable(client, dataset_id, query)
     vocabulary = {}
     for row in result:
@@ -143,7 +152,7 @@ def main():
     data = loadQuestionsFromDB(-1)
     print("Data loaded from DB.questions")
 
-    vocabulary = load_vocabulary()
+    vocabulary = load_vocabulary(-1)
     print("Vocabulary loaded and get the dictionary")
 
     cleanedData, _ = preprocess(data, vocabulary)

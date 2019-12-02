@@ -8,7 +8,7 @@ from google.cloud import bigquery
 from evaluate import vectorSimilarity
 
 encoder = load_model(r'./weights/encoder_weights.h5')
-vocabulary = load_vocabulary()
+vocabulary = load_vocabulary(-1)
 client = bigquery.Client()
 dataset_id = "stackoverflow"
 

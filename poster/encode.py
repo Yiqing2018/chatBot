@@ -8,7 +8,7 @@ if __name__ == '__main__':
     # step1, save results into csv file
     # read all questions
     data = loadQuestionsFromDB(-1)
-    vocabulary = load_vocabulary()
+    vocabulary = load_vocabulary(-1)
     cleanedData, qids = preprocess(data, vocabulary)
     print("Data preprocessed")
     # write to a csv file with format (qid, compressed vector)
