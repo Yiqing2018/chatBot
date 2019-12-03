@@ -1,3 +1,5 @@
+pyc
+__pycache__
 *.pdf
 *.gdoc
 *.csv
@@ -6,3 +8,5 @@
 others
 log
 *.pptx
+material
+*.mp4
