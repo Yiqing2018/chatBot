@@ -1,5 +1,5 @@
 import keras
-from autoencoder import load_vocabulary, preprocess, loadQuestionsFromDB
+from preprocessor import load_vocabulary, preprocess, loadQuestionsFromDB
 from keras.models import load_model
 from google.cloud import bigquery
 import json

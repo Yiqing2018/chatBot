@@ -3,14 +3,6 @@ import numpy as np
 from google.cloud import bigquery
 import csv
 
-def cleanQuestion(question):
-    """
-    This method tokenizes and preprocess a question.
-    """
-    q = question.translate(str.maketrans('', '', string.punctuation)).lower()
-    words = q.split()
-    return words
-
 def buildVocabulary(query_results):
     """
     This method receives a BigQuery query result with each row as [qid, question, answer_id], 

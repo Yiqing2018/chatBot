@@ -1,8 +1,7 @@
 from flask import Flask, request
 from keras.models import load_model
 import numpy as np
-from dataprocessor import cleanQuestion, queryTable
-from autoencoder import load_vocabulary, generate_initial_vector
+from preprocessor import load_vocabulary, generate_initial_vector, cleanQuestion, queryTable
 import keras
 from google.cloud import bigquery
 from evaluate import vectorSimilarity

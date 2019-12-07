@@ -1,6 +1,6 @@
 from keras.models import load_model
 import numpy as np
-import autoencoder
+from preprocessor import loadQuestionsFromDB, load_vocabulary, preprocess
 import math
 
 encoder = load_model(r'./weights/encoder_weights.h5')
@@ -17,9 +17,13 @@ def eval(data):
 		# print('Input: {}'.format(x))
 		# print('Encoded: {}'.format(y))
 		# print('Decoded: {}'.format(z))
-
-		diff.append(vectorSimilarity(x[0], z[0]))
-	print("evaluation on test data, similarity = ", sum(diff) / len(diff) )
+		simi = vectorSimilarity(x[0], z[0])
+		if simi != None:
+			diff.append(simi)
+	if len(diff)!= 0 :
+		print("evaluation on test data, similarity = ", sum(diff) / len(diff) )
+	else:
+		print("no valid similarity")
 
 
 # according to our theory, the similarity of two vectors is measured by 
@@ -34,23 +38,7 @@ def vectorSimilarity(a,b):
 		res += (n1 * n2)
 		aSize += (n1 * n1)
 		bSize += (n2 * n2)
+	if aSize * bSize== 0:
+		return None
 	return res/math.sqrt(aSize * bSize)
 
-def main():
-    # load full data
-    data = autoencoder.loadQuestionsFromDB(-1)    
-    # load vocabulary
-    vocabulary = autoencoder.load_vocabulary(-1)
-    print("Vocabulary loaded and get the dictionary")
-    # clean up data
-    cleanedData, _ = autoencoder.preprocess(data, vocabulary)
-    print("Data preprocessed")
-    # extract test data
-    idx = int(len(cleanedData)*autoencoder.trainingPercent)
-    testData = cleanedData[idx:]
-    print("Split testData")
-    # evaluate the result
-    eval(testData)
-
-if __name__ == '__main__':
-	main()

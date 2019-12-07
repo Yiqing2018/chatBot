@@ -2,11 +2,11 @@ import os, pprint
 import numpy as np
 import tensorflow as tf
 import keras
-from dataprocessor import cleanQuestion
 from keras.layers import Input, Dense
 from keras.models import Model
 from keras.callbacks import TensorBoard
 from google.cloud import bigquery
+from preprocessor import preprocess
 
 trainingPercent = 0.8
 maxlen = 36
@@ -65,108 +65,3 @@ class AutoEncoder:
         self.fit(batch_size=50, epochs=epochs_size)
         self.save()
 
-def queryTable(client, dataset_id, sql):
-    job_config = bigquery.QueryJobConfig()
-    query_job = client.query(
-        sql,
-        location='US',
-        job_config=job_config)
-    return query_job.result()  # Waits for the query to finish
-
-def loadQuestionsFromDB(limitedSize):
-    client = bigquery.Client()
-    dataset_id = "stackoverflow" # dataset_id used for query shouldn't contain project_id.
-    if limitedSize != -1:
-        query = """
-        SELECT
-            *
-        FROM
-            `optical-metric-260620.stackoverflow.questions`
-        LIMIT {};
-        """.format(limitedSize)
-    else:
-        query = """
-        SELECT
-            *
-        FROM
-            `optical-metric-260620.stackoverflow.questions`;
-        """
-    result = queryTable(client,dataset_id, query)
-    return result
-
-def preprocess(data, vocabulary):
-    trainingData = []
-    count = 0
-    qids = []
-    for row in data:
-        sample = []
-        words = cleanQuestion(row[1])
-        for word in words:
-            if word in vocabulary:
-                sample.append(vocabulary[word])
-            else:
-                sample.append(1) # 1 is for unknown
-        trainingData.append(sample)
-        qids.append(row[0])
-    # make sure the length of input is the same
-    return keras.preprocessing.sequence.pad_sequences(
-        trainingData, 
-        value=0, # 0 is for pad
-        padding="post",
-        maxlen=36), qids
-
-def generate_initial_vector(words, vocabulary):
-    sample = []
-    for word in words:
-        if word in vocabulary:
-            sample.append(vocabulary[word])
-        else:
-            sample.append(1) # 1 is for unknown
-    return sample
-
-def load_vocabulary(limitedSize):
-    client = bigquery.Client()
-    dataset_id = "stackoverflow"
-    if limitedSize != -1:
-        query = """
-            SELECT 
-                *
-            FROM 
-                `optical-metric-260620.stackoverflow.vocabulary`
-            LIMIT {};
-        """.format(limitedSize)
-    else:
-        query = """
-            SELECT 
-                *
-            FROM 
-                `optical-metric-260620.stackoverflow.vocabulary`;
-        """
-    result = queryTable(client, dataset_id, query)
-    vocabulary = {}
-    for row in result:
-        vocabulary[row[0]] = row[1]
-    return vocabulary
-
-def main():
-    data = loadQuestionsFromDB(-1)
-    print("Data loaded from DB.questions")
-
-    vocabulary = load_vocabulary(-1)
-    print("Vocabulary loaded and get the dictionary")
-
-    cleanedData, _ = preprocess(data, vocabulary)
-    print("Data preprocessed")
-
-    # split training data and test data
-    idx = int(len(cleanedData)*trainingPercent)
-    trainingData = cleanedData[:idx]
-    testData = cleanedData[idx:]
-
-    # train model
-    autoEncoder = AutoEncoder(trainingData)
-    autoEncoder.run()
-    
-
-if __name__ == '__main__':
-    main()
