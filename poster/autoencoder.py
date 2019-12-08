@@ -8,7 +8,6 @@ from keras.callbacks import TensorBoard
 from google.cloud import bigquery
 from preprocessor import preprocess
 
-trainingPercent = 0.8
 maxlen = 36
 epochs_size = 3
 compressed_size = 10
@@ -29,7 +28,7 @@ class AutoEncoder:
     def decoder(self):
         inputs = Input(shape=(compressed_size,))
         hidden_1 = Dense(20, activation='relu')(inputs)
-        outputs = Dense(maxlen, activation='sigmoid')(hidden_1)
+        outputs = Dense(maxlen, activation='relu')(hidden_1)
         model = Model(inputs,outputs)
         self.decoder = model
         return model
