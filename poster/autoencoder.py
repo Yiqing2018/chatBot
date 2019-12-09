@@ -6,7 +6,6 @@ from keras.layers import Input, Dense
 from keras.models import Model
 from keras.callbacks import TensorBoard
 from google.cloud import bigquery
-from preprocessor import preprocess
 
 maxlen = 36
 epochs_size = 3
@@ -17,18 +16,18 @@ class AutoEncoder:
         self.trainingData = trainingData
 
     def encoder(self):
-        inputs = Input(shape=(self.trainingData[0].shape))
-        hidden_1 = Dense(20, activation='sigmoid')(inputs)
-        outputs = Dense(compressed_size, activation='relu')(hidden_1)
+        inputs = Input(shape=(self.trainingData[0].shape)) # 35
+        hidden_1 = Dense(20, activation='sigmoid')(inputs) # 20
+        outputs = Dense(compressed_size, activation='relu')(hidden_1) # 3
         model = Model(inputs, outputs)
 
         self.encoder = model
         return model
 
     def decoder(self):
-        inputs = Input(shape=(compressed_size,))
-        hidden_1 = Dense(20, activation='relu')(inputs)
-        outputs = Dense(maxlen, activation='relu')(hidden_1)
+        inputs = Input(shape=(compressed_size,)) # 3
+        hidden_1 = Dense(20, activation='relu')(inputs) # 20
+        outputs = Dense(maxlen, activation='sigmoid')(hidden_1) # 35
         model = Model(inputs,outputs)
         self.decoder = model
         return model

@@ -4,7 +4,7 @@ from evaluate import eval
 trainingPercent = 0.8
 
 def main():
-    data = loadQuestionsFromDB(100)
+    data = loadQuestionsFromDB(-1)
     print("Data loaded from DB.questions")
 
     # split training data and test data
@@ -13,7 +13,7 @@ def main():
     testingData = data[idx:]
     print("training data splitted")
 
-    vocabulary = load_vocabulary(100)
+    vocabulary = load_vocabulary(-1)
     print("Vocabulary loaded and get the dictionary")
 
     cleanData, _ = preprocess(trainingData, vocabulary)
@@ -24,9 +24,9 @@ def main():
     autoEncoder.run()
 
     # evaluation on testingData
-    cleanData, _ = preprocess(testingData, vocabulary)
-    print("Data preprocessed")
-    eval(cleanData)
+    # cleanData, _ = preprocess(testingData, vocabulary)
+    # print("Data preprocessed")
+    # eval(cleanData)
     
 
 if __name__ == '__main__':

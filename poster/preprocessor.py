@@ -1,6 +1,10 @@
 from google.cloud import bigquery
 import keras
 import string
+import numpy as np
+import autoencoder
+
+maxlen = autoencoder.maxlen
 
 # tokenizes and preprocess a question, removing all punctuation, convert to lower case
 def cleanQuestion(question):
@@ -84,14 +88,22 @@ def preprocess(data, vocabulary):
                 sample.append(vocabulary[word])
             else:
                 sample.append(1) # 1 is for unknown
+        # normalize the vector
+        sample = normalizeVector(sample)
         trainingData.append(sample)
         qids.append(row[0])
-    return keras.preprocessing.sequence.pad_sequences(
+    trainingData = keras.preprocessing.sequence.pad_sequences(
         trainingData, 
-        value=0, # 0 is for pad
+        value=0.0, # 0 is for pad
         padding="post",
-        maxlen=36), qids
+        dtype='float32',
+        maxlen=maxlen)
+    return trainingData, qids
 
+def normalizeVector(x):
+    x=np.array(x)
+    y=np.linalg.norm(x, ord = 2, keepdims=True) # ord : norm dimension
+    return (x/y).tolist()
 
 def generate_initial_vector(words, vocabulary):
     sample = []
