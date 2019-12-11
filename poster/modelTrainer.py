@@ -17,15 +17,15 @@ def main():
     print("Vocabulary loaded and get the dictionary")
 
     cleanData, _ = preprocess(trainingData, vocabulary)
-    print("Data preprocessed")
-
-    # train model
+    print("trainingData preprocessed")
     autoEncoder = AutoEncoder(cleanData)
     autoEncoder.run()
+    print("model training done")
 
-    # evaluation on testingData
+
+    # # evaluation on testingData
     # cleanData, _ = preprocess(testingData, vocabulary)
-    # print("Data preprocessed")
+    # print("testiData preprocessed")
     # eval(cleanData)
     
 

@@ -2,7 +2,7 @@ import os, pprint
 import numpy as np
 import tensorflow as tf
 import keras
-from keras.layers import Input, Dense
+from keras.layers import Input, Dense, Embedding, GlobalAveragePooling1D
 from keras.models import Model
 from keras.callbacks import TensorBoard
 from google.cloud import bigquery
@@ -10,14 +10,20 @@ from google.cloud import bigquery
 maxlen = 36
 epochs_size = 3
 compressed_size = 10
-
+embedding_dim = 4
+vocabulary_size = 887515 # vocabulary index = 887514
 class AutoEncoder:
     def __init__(self,trainingData):
-        self.trainingData = trainingData
+        self.trainingData = trainingData        
 
     def encoder(self):
-        inputs = Input(shape=(self.trainingData[0].shape)) # 35
-        hidden_1 = Dense(20, activation='sigmoid')(inputs) # 20
+        inputs = Input(shape=(self.trainingData[0].shape)) # vectors
+        # print('inputs shape = ',inputs.shape)
+        embedding = Embedding(vocabulary_size, embedding_dim)(inputs) # vector to matrix
+        # print('embedding shape = ',embedding.shape)
+        oneDimension = GlobalAveragePooling1D()(embedding) # matrix to vector
+        # print('oneDimension shape = ',embedding.shape)
+        hidden_1 = Dense(20, activation='relu')(oneDimension) # 20
         outputs = Dense(compressed_size, activation='relu')(hidden_1) # 3
         model = Model(inputs, outputs)
 
@@ -27,7 +33,7 @@ class AutoEncoder:
     def decoder(self):
         inputs = Input(shape=(compressed_size,)) # 3
         hidden_1 = Dense(20, activation='relu')(inputs) # 20
-        outputs = Dense(maxlen, activation='sigmoid')(hidden_1) # 35
+        outputs = Dense(maxlen, activation='relu')(hidden_1) # 35
         model = Model(inputs,outputs)
         self.decoder = model
         return model
