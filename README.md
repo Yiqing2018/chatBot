@@ -10,10 +10,11 @@ input: the sentence from user input
 
 For example: How to import package in Python?  
 
-output: the top-rated answer of the best matched question according to user input
+output: the top-rated answer of the best matched question according to user input  
+
 underlying problem: implement an approach to compute the similarity between input text and questions stored in DB efficiently  
 
-dataset: [StackOverflow Data from kaggle](https://www.kaggle.com/stackoverflow/stackoverflow)
+dataset: [StackOverflow Data from kaggle](https://www.kaggle.com/stackoverflow/stackoverflow)  
 StackOverflow is one of the largest online community for programmers to learn, share their knowledge.  
 After data cleaning, we would mainly use two tables:  
 questions: question_id, question_title, top_rated_answer_id  
@@ -34,10 +35,10 @@ similarity Score(vector1, vector2) = cos(x) = (vector1*vector2)/(|vector1| |vect
 
 the more similar, the cos(x) is more close to 1
 
-dependencies:
-language: Python3
-packages: tensorflow, keras
-data storage: BigQuery from Google Cloud
+dependencies:  
+language: Python3  
+packages: tensorflow, keras  
+data storage: BigQuery from Google Cloud  
 
 ##  Testing results
 Testing on 20% of full dataset, the average similarity score is 0.476496
@@ -49,11 +50,11 @@ the performance of different data size
 ![](http://ww1.sinaimg.cn/large/006tNbRwly1ga2y9wdxkgj30y80a6ab9.jpg)
 it’s running very fast on small size data, no more than 1 minute, but on the whole dataset, it runs for almost 50 minutes
 ##  References
-Yao, L., Pan, Z., & Ning, H. (2018). Unlabeled Short Text Similarity With LSTM Encoder. IEEE Access, 7, 3430-3437.
-Seo, M., Kembhavi, A., Farhadi, A., & Hajishirzi, H. (2016). Bidirectional attention flow for machine comprehension. arXiv preprint arXiv:1611.01603.
-Devlin, J., Chang, M. W., Lee, K., & Toutanova, K. (2018). Bert: Pre-training of deep bidirectional transformers for language understanding. arXiv preprint arXiv:1810.04805.
-Wang, S., & Jiang, J. (2015). Learning natural language inference with LSTM. arXiv preprint arXiv:1512.08849.
-Wang, S., & Jiang, J. (2016). Machine comprehension using match-lstm and answer pointer. arXiv preprint arXiv:1608.07905.
+Yao, L., Pan, Z., & Ning, H. (2018). Unlabeled Short Text Similarity With LSTM Encoder. IEEE Access, 7, 3430-3437.  
+Seo, M., Kembhavi, A., Farhadi, A., & Hajishirzi, H. (2016). Bidirectional attention flow for machine comprehension. arXiv preprint arXiv:1611.01603.  
+Devlin, J., Chang, M. W., Lee, K., & Toutanova, K. (2018). Bert: Pre-training of deep bidirectional transformers for language understanding. arXiv preprint arXiv:1810.04805.   
+Wang, S., & Jiang, J. (2015). Learning natural language inference with LSTM. arXiv preprint arXiv:1512.08849.  
+Wang, S., & Jiang, J. (2016). Machine comprehension using match-lstm and answer pointer. arXiv preprint arXiv:1608.07905.  
 
 
 
